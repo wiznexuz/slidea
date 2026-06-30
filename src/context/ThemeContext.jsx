@@ -5,7 +5,7 @@ const themes = {
     bg: '#FFFFFF',
     surface: '#F7F7F5',
     text: '#111111',
-    muted: '#555555',
+    muted: '#808080',
     accent: '#C9A84C',
     border: '#E0E0E0'
   },

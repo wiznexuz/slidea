@@ -145,7 +145,7 @@ export default function Auth() {
         }
       })
       if (error) setError(error.message)
-      else setSuccess('Account created! Check your email to confirm, then log in.')
+      else setSuccess('Account created! You can now log in!.')
     }
     setLoading(false)
   }

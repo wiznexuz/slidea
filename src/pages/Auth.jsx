@@ -39,6 +39,7 @@ export default function Auth() {
   const [tab, setTab] = useState('login')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const [username, setUsername] = useState('')
   const [faculty, setFaculty] = useState('')
   const [department, setDepartment] = useState('')
@@ -48,7 +49,6 @@ export default function Auth() {
   const [level, setLevel] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-  const [success, setSuccess] = useState('')
   const [savedOptions, setSavedOptions] = useState(loadSavedOptions)
   const navigate = useNavigate()
   const { theme } = useTheme()
@@ -96,37 +96,9 @@ export default function Auth() {
     setShowCustomOption(false)
   }
 
-  const inp = {
-    width: '100%',
-    padding: '11px 14px',
-    border: `1px solid ${theme.border}`,
-    borderRadius: 10,
-    fontSize: 14,
-    background: theme.bg,
-    color: theme.text,
-    outline: 'none',
-    marginBottom: 12,
-    fontFamily: 'inherit',
-  }
-
-  const sel = {
-    width: '100%',
-    padding: '11px 14px',
-    border: `1px solid ${theme.border}`,
-    borderRadius: 10,
-    fontSize: 14,
-    background: theme.bg,
-    color: theme.text,
-    outline: 'none',
-    marginBottom: 12,
-    cursor: 'pointer',
-    fontFamily: 'inherit',
-  }
-
   async function handleSubmit() {
     setLoading(true)
     setError('')
-    setSuccess('')
 
     if (tab === 'login') {
       const { error } = await supabase.auth.signInWithPassword({ email, password })
@@ -134,6 +106,8 @@ export default function Auth() {
       else navigate('/', { replace: true })
     } else {
       if (!username.trim()) { setError('Please enter a username'); setLoading(false); return }
+      if (!email.trim()) { setError('Please enter your email'); setLoading(false); return }
+      if (!password.trim()) { setError('Please enter a password'); setLoading(false); return }
       if (!faculty) { setError('Please select your faculty'); setLoading(false); return }
       if (!department) { setError('Please select your department'); setLoading(false); return }
 
@@ -145,67 +119,139 @@ export default function Auth() {
         }
       })
       if (error) setError(error.message)
-      else setSuccess('Account created! You can now log in!.')
+      else navigate('/', { replace: true })
     }
     setLoading(false)
   }
 
-  return (
-    <div style={{ minHeight: '100vh', background: theme.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
-      <div style={{ width: '100%', maxWidth: 420 }}>
+  const inp = {
+    width: '100%',
+    padding: '11px 14px',
+    border: `1px solid ${theme.border}`,
+    borderRadius: 10,
+    fontSize: 15,
+    background: theme.bg,
+    color: theme.text,
+    outline: 'none',
+    marginBottom: 12,
+    fontFamily: 'inherit',
+    boxSizing: 'border-box',
+  }
 
-        <div style={{ textAlign: 'center', marginBottom: 32 }}>
+  const sel = {
+    width: '100%',
+    padding: '11px 14px',
+    border: `1px solid ${theme.border}`,
+    borderRadius: 10,
+    fontSize: 15,
+    background: theme.bg,
+    color: theme.text,
+    outline: 'none',
+    marginBottom: 12,
+    cursor: 'pointer',
+    fontFamily: 'inherit',
+    boxSizing: 'border-box',
+  }
+
+  return (
+    <div style={{ minHeight: '100vh', background: theme.bg, display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: '24px 16px', boxSizing: 'border-box' }}>
+      <div style={{ width: '100%', maxWidth: 440, paddingTop: 24 }}>
+
+        {/* Logo */}
+        <div style={{ textAlign: 'center', marginBottom: 28 }}>
           <div style={{ fontSize: 28, fontWeight: 700, color: theme.accent, letterSpacing: -0.5, marginBottom: 4 }}>Slidea</div>
-          <div style={{ fontSize: 13, color: theme.muted }}>
+          <div style={{ fontSize: 14, color: theme.muted }}>
             {tab === 'login' ? 'Welcome back' : 'Join thousands of students'}
           </div>
         </div>
 
-        <div style={{ border: `1px solid ${theme.border}`, borderRadius: 20, padding: 32, background: theme.bg }}>
+        <div style={{ border: `1px solid ${theme.border}`, borderRadius: 20, padding: '28px 24px', background: theme.bg, boxSizing: 'border-box' }}>
 
+          {/* Tabs */}
           <div style={{ display: 'flex', borderBottom: `1px solid ${theme.border}`, marginBottom: 24 }}>
             {['login', 'signup'].map(t => (
               <button key={t}
-                onClick={() => { setTab(t); setError(''); setSuccess('') }}
-                style={{ flex: 1, padding: '8px 0', fontSize: 14, background: 'none', border: 'none', cursor: 'pointer', color: tab === t ? theme.accent : theme.muted, borderBottom: tab === t ? `2px solid ${theme.accent}` : '2px solid transparent', fontWeight: tab === t ? 600 : 400, marginBottom: -1 }}>
+                onClick={() => { setTab(t); setError('') }}
+                style={{ flex: 1, padding: '10px 0', fontSize: 15, background: 'none', border: 'none', cursor: 'pointer', color: tab === t ? theme.accent : theme.muted, borderBottom: tab === t ? `2px solid ${theme.accent}` : '2px solid transparent', fontWeight: tab === t ? 600 : 400, marginBottom: -1 }}>
                 {t === 'login' ? 'Log in' : 'Sign up'}
               </button>
             ))}
           </div>
 
+          {/* Login fields */}
           {tab === 'login' && (
             <>
-              <div style={{ fontSize: 12, color: theme.muted, marginBottom: 5 }}>Email address</div>
-              <input style={inp} type="email" placeholder="you@university.edu"
-                value={email} onChange={e => setEmail(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && handleSubmit()} />
-              <div style={{ fontSize: 12, color: theme.muted, marginBottom: 5 }}>Password</div>
-              <input style={inp} type="password" placeholder="••••••••"
-                value={password} onChange={e => setPassword(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && handleSubmit()} />
+              <div style={{ fontSize: 13, color: theme.muted, marginBottom: 5 }}>Email address</div>
+              <input
+                style={inp}
+                type="email"
+                placeholder="you@university.edu"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && handleSubmit()}
+              />
+
+              <div style={{ fontSize: 13, color: theme.muted, marginBottom: 5 }}>Password</div>
+              <div style={{ position: 'relative', marginBottom: 12 }}>
+                <input
+                  style={{ ...inp, marginBottom: 0, paddingRight: 48 }}
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && handleSubmit()}
+                />
+                <button
+                  onClick={() => setShowPassword(p => !p)}
+                  style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', fontSize: 16, color: theme.muted, padding: 4, lineHeight: 1 }}>
+                  {showPassword ? '🙈' : '👁️'}
+                </button>
+              </div>
             </>
           )}
 
+          {/* Signup fields */}
           {tab === 'signup' && (
             <>
-              <div style={{ fontSize: 12, color: theme.muted, marginBottom: 5 }}>Username</div>
-              <input style={inp} placeholder="e.g. chimdi_eze"
-                value={username} onChange={e => setUsername(e.target.value)} />
+              <div style={{ fontSize: 13, color: theme.muted, marginBottom: 5 }}>Username</div>
+              <input
+                style={inp}
+                placeholder="e.g. chimdi_eze"
+                value={username}
+                onChange={e => setUsername(e.target.value)}
+              />
 
-              <div style={{ fontSize: 12, color: theme.muted, marginBottom: 5 }}>Email address</div>
-              <input style={inp} type="email" placeholder="you@university.edu"
-                value={email} onChange={e => setEmail(e.target.value)} />
+              <div style={{ fontSize: 13, color: theme.muted, marginBottom: 5 }}>Email address</div>
+              <input
+                style={inp}
+                type="email"
+                placeholder="you@university.edu"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+              />
 
-              <div style={{ fontSize: 12, color: theme.muted, marginBottom: 5 }}>Password</div>
-              <input style={inp} type="password" placeholder="••••••••"
-                value={password} onChange={e => setPassword(e.target.value)} />
+              <div style={{ fontSize: 13, color: theme.muted, marginBottom: 5 }}>Password</div>
+              <div style={{ position: 'relative', marginBottom: 12 }}>
+                <input
+                  style={{ ...inp, marginBottom: 0, paddingRight: 48 }}
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="Min. 6 characters"
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                />
+                <button
+                  onClick={() => setShowPassword(p => !p)}
+                  style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', fontSize: 16, color: theme.muted, padding: 4, lineHeight: 1 }}>
+                  {showPassword ? '🙈' : '👁️'}
+                </button>
+              </div>
 
               <div style={{ height: 1, background: theme.border, margin: '8px 0 16px' }} />
-              <div style={{ fontSize: 12, color: theme.accent, fontWeight: 600, marginBottom: 12 }}>
+              <div style={{ fontSize: 13, color: theme.accent, fontWeight: 600, marginBottom: 12 }}>
                 Your academic details
               </div>
 
-              <div style={{ fontSize: 12, color: theme.muted, marginBottom: 5 }}>Faculty</div>
+              <div style={{ fontSize: 13, color: theme.muted, marginBottom: 5 }}>Faculty</div>
               <select style={sel} value={faculty} onChange={e => handleFacultyChange(e.target.value)}>
                 <option value="">Select your faculty</option>
                 {Object.keys(facultyDepartments).map(f => (
@@ -213,13 +259,14 @@ export default function Auth() {
                 ))}
               </select>
 
-              <div style={{ fontSize: 12, color: theme.muted, marginBottom: 5 }}>
+              <div style={{ fontSize: 13, color: theme.muted, marginBottom: 5 }}>
                 Department{' '}
-                {!faculty && <span style={{ color: theme.border }}>— select faculty first</span>}
+                {!faculty && <span style={{ color: theme.border, fontSize: 12 }}>— select faculty first</span>}
               </div>
               <select
                 style={{ ...sel, background: faculty ? theme.bg : theme.surface, cursor: faculty ? 'pointer' : 'not-allowed' }}
-                value={department} disabled={!faculty}
+                value={department}
+                disabled={!faculty}
                 onChange={e => handleDepartmentChange(e.target.value)}>
                 <option value="">{faculty ? 'Select your department' : 'Select faculty first'}</option>
                 {departments.map(d => <option key={d} value={d}>{d}</option>)}
@@ -227,11 +274,9 @@ export default function Auth() {
 
               {department && (
                 <div style={{ marginBottom: 12 }}>
-                  <div style={{ fontSize: 12, color: theme.muted, marginBottom: 5 }}>
+                  <div style={{ fontSize: 13, color: theme.muted, marginBottom: 5 }}>
                     Option{' '}
-                    <span style={{ color: theme.border, fontStyle: 'italic' }}>
-                      (if applicable — e.g. "Computer Science with Mathematics")
-                    </span>
+                    <span style={{ color: theme.border, fontStyle: 'italic', fontSize: 12 }}>(if applicable)</span>
                   </div>
 
                   {existingOptions.length > 0 && !showCustomOption ? (
@@ -250,11 +295,11 @@ export default function Auth() {
                         onKeyDown={e => e.key === 'Enter' && handleAddCustomOption()}
                       />
                       <button onClick={handleAddCustomOption}
-                        style={{ padding: '10px 14px', background: theme.accent, color: '#fff', border: 'none', borderRadius: 10, fontSize: 13, cursor: 'pointer' }}>
+                        style={{ padding: '11px 14px', background: theme.accent, color: '#fff', border: 'none', borderRadius: 10, fontSize: 13, cursor: 'pointer', whiteSpace: 'nowrap' }}>
                         Add
                       </button>
                       <button onClick={() => { setOption(''); setCustomOptionInput('') }}
-                        style={{ padding: '10px 14px', background: 'none', border: `1px solid ${theme.border}`, borderRadius: 10, fontSize: 13, cursor: 'pointer', color: theme.muted }}>
+                        style={{ padding: '11px 14px', background: 'none', border: `1px solid ${theme.border}`, borderRadius: 10, fontSize: 13, cursor: 'pointer', color: theme.muted, whiteSpace: 'nowrap' }}>
                         Skip
                       </button>
                     </div>
@@ -269,11 +314,11 @@ export default function Auth() {
                         autoFocus
                       />
                       <button onClick={handleAddCustomOption}
-                        style={{ padding: '10px 14px', background: theme.accent, color: '#fff', border: 'none', borderRadius: 10, fontSize: 13, cursor: 'pointer' }}>
+                        style={{ padding: '11px 14px', background: theme.accent, color: '#fff', border: 'none', borderRadius: 10, fontSize: 13, cursor: 'pointer', whiteSpace: 'nowrap' }}>
                         Add
                       </button>
                       <button onClick={() => { setShowCustomOption(false); setCustomOptionInput('') }}
-                        style={{ padding: '10px 14px', background: 'none', border: `1px solid ${theme.border}`, borderRadius: 10, fontSize: 13, cursor: 'pointer', color: theme.muted }}>
+                        style={{ padding: '11px 14px', background: 'none', border: `1px solid ${theme.border}`, borderRadius: 10, fontSize: 13, cursor: 'pointer', color: theme.muted, whiteSpace: 'nowrap' }}>
                         Cancel
                       </button>
                     </div>
@@ -287,7 +332,7 @@ export default function Auth() {
                 </div>
               )}
 
-              <div style={{ fontSize: 12, color: theme.muted, marginBottom: 5 }}>Level</div>
+              <div style={{ fontSize: 13, color: theme.muted, marginBottom: 5 }}>Level</div>
               <select style={sel} value={level} onChange={e => setLevel(e.target.value)}>
                 <option value="">Select your level</option>
                 {levels.map(l => <option key={l} value={l}>{l}</option>)}
@@ -296,33 +341,30 @@ export default function Auth() {
           )}
 
           {error && (
-            <div style={{ fontSize: 13, color: '#c0392b', marginBottom: 14, padding: '10px 12px', background: '#fdf0f0', borderRadius: 8 }}>
+            <div style={{ fontSize: 13, color: '#c0392b', marginBottom: 14, padding: '10px 12px', background: '#fdf0f0', borderRadius: 8, lineHeight: 1.5 }}>
               {error}
             </div>
           )}
-          {success && (
-            <div style={{ fontSize: 13, color: '#1a7a4a', marginBottom: 14, padding: '10px 12px', background: '#f0faf5', borderRadius: 8 }}>
-              {success}
-            </div>
-          )}
 
-          <button onClick={handleSubmit} disabled={loading}
-            style={{ width: '100%', padding: '12px', background: loading ? theme.muted : theme.accent, color: '#fff', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: loading ? 'not-allowed' : 'pointer', marginTop: 4 }}>
+          <button
+            onClick={handleSubmit}
+            disabled={loading}
+            style={{ width: '100%', padding: '13px', background: loading ? theme.muted : theme.accent, color: '#fff', border: 'none', borderRadius: 10, fontSize: 15, fontWeight: 600, cursor: loading ? 'not-allowed' : 'pointer', boxSizing: 'border-box', marginTop: 4 }}>
             {loading ? 'Please wait…' : tab === 'login' ? 'Log in' : 'Create account'}
           </button>
 
-          <div style={{ textAlign: 'center', marginTop: 16, fontSize: 13, color: theme.muted }}>
+          <div style={{ textAlign: 'center', marginTop: 16, fontSize: 14, color: theme.muted }}>
             {tab === 'login' ? (
               <>No account?{' '}
-                <button onClick={() => { setTab('signup'); setError(''); setSuccess('') }}
-                  style={{ color: theme.accent, background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 500 }}>
+                <button onClick={() => { setTab('signup'); setError('') }}
+                  style={{ color: theme.accent, background: 'none', border: 'none', cursor: 'pointer', fontSize: 14, fontWeight: 500 }}>
                   Sign up free
                 </button>
               </>
             ) : (
               <>Already have an account?{' '}
-                <button onClick={() => { setTab('login'); setError(''); setSuccess('') }}
-                  style={{ color: theme.accent, background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 500 }}>
+                <button onClick={() => { setTab('login'); setError('') }}
+                  style={{ color: theme.accent, background: 'none', border: 'none', cursor: 'pointer', fontSize: 14, fontWeight: 500 }}>
                   Log in
                 </button>
               </>
@@ -330,9 +372,9 @@ export default function Auth() {
           </div>
         </div>
 
-        <div style={{ textAlign: 'center', marginTop: 20 }}>
+        <div style={{ textAlign: 'center', marginTop: 20, paddingBottom: 32 }}>
           <button onClick={() => navigate('/')}
-            style={{ fontSize: 13, color: theme.muted, background: 'none', border: 'none', cursor: 'pointer' }}>
+            style={{ fontSize: 14, color: theme.muted, background: 'none', border: 'none', cursor: 'pointer' }}>
             ← Back to Slidea
           </button>
         </div>
